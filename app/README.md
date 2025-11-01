@@ -1,37 +1,37 @@
-# 🎯 ClassMint 学生端 APP
+# 🎯 ClassMint Student App
 
-一个基于 Ionic + Vue 3 + Capacitor 的移动端应用，实现"扫码领奖 + 余额显示 + 账号密码登录"的闭环演示。
+A mobile application built with Ionic + Vue 3 + Capacitor, demonstrating a complete flow of "Scan QR Code + Balance Display + Account Login".
 
-## ✨ 功能特性
+## ✨ Features
 
-- 🔐 **账号密码登录**：本地校验（student/123456）
-- 📱 **扫码领奖**：支持 DEMO-100 / DEMO-500 令牌
-- 💰 **余额管理**：实时余额显示和最近 10 笔流水
-- 🔗 **深度链接**：支持 `/claim?token=...` 直接领取
-- 📱 **响应式设计**：完美适配移动端和桌面端
-- 💾 **本地存储**：使用 localStorage 模拟数据库
+- 🔐 **Account Login**: Local validation (student/123456)
+- 📱 **Scan & Claim**: Support for DEMO-100 / DEMO-500 tokens
+- 💰 **Balance Management**: Real-time balance display and recent 10 transactions
+- 🔗 **Deep Linking**: Support for `/claim?token=...` direct claim
+- 📱 **Responsive Design**: Perfect adaptation for mobile and desktop
+- 💾 **Local Storage**: Using localStorage to simulate database
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Requirements
 
 - Node.js 16+
-- npm 或 yarn
-- Android Studio（用于 Android 构建）
+- npm or yarn
+- Android Studio (for Android builds)
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 开发模式
+### Development Mode
 
 ```bash
 npm run dev
 ```
 
-### 构建 Android 应用
+### Build Android Application
 
 ```bash
 npm i -D @capacitor/cli
@@ -41,93 +41,93 @@ npm run build
 npx cap sync android
 npx cap open android
 ```
-仅更新的时候
+For updates only:
 ```bash
 npm run build
 npx cap sync android
 npx cap open android
 ```
 
-## 📱 页面导航
+## 📱 Page Navigation
 
-| 路径 | 页面 | 功能 |
-|------|------|------|
-| `/` | 首页 | 欢迎页面，显示当前状态 |
-| `/login` | 登录页 | 账号密码登录 |
-| `/scan` | 扫码页 | 扫码领奖功能 |
-| `/me` | 账户页 | 余额和交易记录 |
-| `/claim` | 深度链接页 | 处理 claim?token=... |
+| Path | Page | Function |
+|------|------|----------|
+| `/` | Home | Welcome page, display current status |
+| `/login` | Login | Account login |
+| `/scan` | Scan | QR code scanning for rewards |
+| `/me` | Account | Balance and transaction history |
+| `/claim` | Deep Link | Handle claim?token=... |
 
-## 🧪 演示流程
+## 🧪 Demo Flow
 
-1. **登录**：访问 `/login`，使用 `student/123456` 登录
-2. **扫码**：登录成功后跳转到 `/scan`，点击"开始扫码"
-3. **领奖**：扫描包含令牌的二维码
-4. **查看余额**：访问 `/me` 查看余额增加和交易记录
+1. **Login**: Visit `/login`, use `student/123456` to login
+2. **Scan**: After successful login, navigate to `/scan`, click "Start Scanning"
+3. **Claim Reward**: Scan QR code containing token
+4. **Check Balance**: Visit `/me` to view balance increase and transaction history
 
-## 🏗️ 项目结构
+## 🏗️ Project Structure
 
 ```
 src/
-├── views/                 # 页面组件
-│   ├── HomePage.vue      # 首页
-│   ├── LoginView.vue     # 登录页
-│   ├── ScanView.vue      # 扫码页
-│   ├── MeView.vue        # 账户页
-│   └── ClaimDeepLinkView.vue # 深度链接页
-├── store/                # 状态管理
-│   └── user.ts          # 用户状态
-├── api/                  # API 接口
-│   └── mockApi.ts       # 模拟 API
-├── mock/                 # 模拟数据
-│   └── db.ts            # 本地数据库
-└── router/               # 路由配置
-    └── index.ts         # 路由定义
+├── views/                 # Page components
+│   ├── HomePage.vue      # Home page
+│   ├── LoginView.vue     # Login page
+│   ├── ScanView.vue      # Scan page
+│   ├── MeView.vue        # Account page
+│   └── ClaimDeepLinkView.vue # Deep link page
+├── store/                # State management
+│   └── user.ts          # User state
+├── api/                  # API interfaces
+│   └── mockApi.ts       # Mock API
+├── mock/                 # Mock data
+│   └── db.ts            # Local database
+└── router/               # Router configuration
+    └── index.ts         # Route definitions
 ```
 
-## 🔧 技术栈
+## 🔧 Tech Stack
 
-- **前端框架**：Vue 3 + Composition API
-- **UI 组件库**：Ionic Vue 8
-- **状态管理**：Pinia
-- **路由**：Vue Router 4
-- **构建工具**：Vite
-- **移动端**：Capacitor 7
-- **扫码功能**：@capacitor-mlkit/barcode-scanning
+- **Frontend Framework**: Vue 3 + Composition API
+- **UI Component Library**: Ionic Vue 8
+- **State Management**: Pinia
+- **Routing**: Vue Router 4
+- **Build Tool**: Vite
+- **Mobile**: Capacitor 7
+- **QR Code Scanning**: @capacitor-mlkit/barcode-scanning
 
-## 📋 验收标准
+## 📋 Acceptance Criteria
 
-- ✅ 登录成功进入扫码页
-- ✅ 扫码 DEMO-500 后余额 +5.00 元
-- ✅ 再扫提示"令牌已使用"
-- ✅ "我的账户"可见最近流水，时间正确
-- ✅ 页面无空白，主要流程无报错
+- ✅ Login successfully and enter scan page
+- ✅ Balance +5.00 after scanning DEMO-500
+- ✅ Shows "Token already used" on second scan
+- ✅ "My Account" shows recent transactions with correct timestamps
+- ✅ No blank pages, main flow without errors
 
-## 🐛 常见问题
+## 🐛 Common Issues
 
-### PowerShell 执行策略限制
+### PowerShell Execution Policy Restriction
 
-如果遇到 `npm run dev` 执行失败，请：
+If you encounter `npm run dev` execution failure, please:
 
 ```powershell
-# 以管理员身份运行 PowerShell
+# Run PowerShell as Administrator
 Set-ExecutionPolicy RemoteSigned
 
-# 或者临时绕过
+# Or temporarily bypass
 Set-ExecutionPolicy Bypass -Scope Process
 ```
 
-### 扫码权限问题
+### QR Code Permission Issues
 
-首次使用扫码功能需要授予相机权限，请确保：
+First-time use of the scanning feature requires camera permission, please ensure:
 
-1. 在浏览器中允许相机权限
-2. 在移动设备上授予应用相机权限
+1. Allow camera permission in browser
+2. Grant camera permission to the app on mobile devices
 
-## 📄 许可证
+## 📄 License
 
 MIT License
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
