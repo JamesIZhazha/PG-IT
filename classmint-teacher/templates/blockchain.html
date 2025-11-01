@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClassMint Blockchain - Teacher Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    .blockchain-container {
+      position: relative;
+      padding: 2rem 0;
+    }
+    .block-item {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border-left: 5px solid #667eea;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .block-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .block-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -2rem;
+      width: 2px;
+      height: 2rem;
+      background: linear-gradient(to bottom, #667eea, #764ba2);
+      transform: translateX(-50%);
+    }
+    .block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .block-number {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .block-timestamp {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    .hash-display {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      word-break: break-all;
+      position: relative;
+    }
+    .hash-label {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .copy-btn:hover {
+      background: #764ba2;
+      transform: scale(1.05);
+    }
+    .transaction-info {
+      background: #e8f4fd;
+      border: 1px solid #bee5eb;
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .transaction-amount {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #28a745;
+    }
+    .stats-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stats-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .verification-status {
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      text-align: center;
+    }
+    .verification-success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .verification-danger {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .genesis-block {
+      border-left-color: #28a745;
+    }
+    .genesis-block .block-number {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">
+        <i class="fas fa-coins me-2"></i>ClassMint Teacher Dashboard
+      </a>
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="/">
+          <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+        </a>
+        <span class="navbar-text me-3">
+          <i class="fas fa-user me-1"></i>{{ uname }}
+        </span>
+        <a class="btn btn-outline-light btn-sm" href="/logout">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- 统计信息 -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-link fa-2x mb-2"></i>
+          <div class="stats-number">{{ blocks|length }}</div>
+          <div>Total Blocks</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-exchange-alt fa-2x mb-2"></i>
+          <div class="stats-number">{{ blocks|length }}</div>
+          <div>Total Transactions</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-shield-alt fa-2x mb-2"></i>
+          <div class="stats-number" id="verificationStatus">-</div>
+          <div>Chain Integrity</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card text-center">
+          <i class="fas fa-clock fa-2x mb-2"></i>
+          <div class="stats-number" id="lastUpdate">-</div>
+          <div>Last Update</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 区块链验证状态 -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <i class="fas fa-shield-alt me-2 text-primary"></i>区块链完整性验证
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-link text-primary me-2"></i>
+              <span class="fw-bold">区块链状态：</span>
+              <span id="blockchainStatus" class="ms-2 badge bg-secondary">检查中...</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-clock text-info me-2"></i>
+              <span class="fw-bold">最后验证：</span>
+              <span id="lastVerifyTime" class="ms-2 text-muted">-</span>
+            </div>
+          </div>
+        </div>
+        
+        <div id="verificationResult" class="mb-3"></div>
+        
+        <!-- Transaction ID列表 -->
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <h6><i class="fas fa-list me-2"></i>可用的Transaction ID：</h6>
+            <div id="transactionIdList" class="d-flex flex-wrap gap-2">
+              <!-- Transaction ID按钮将通过JavaScript生成 -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 验证特定Transaction ID -->
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input type="text" id="transactionIdInput" class="form-control" 
+                     placeholder="输入Transaction ID进行验证 (例如: 1, 2, 3...)" 
+                     onkeypress="if(event.key==='Enter') verifyTransaction()">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-outline-primary w-100" onclick="verifyTransaction()">
+              <i class="fas fa-search me-2"></i>验证Transaction
+            </button>
+          </div>
+        </div>
+        
+        <div id="transactionVerificationResult" class="mb-3"></div>
+        
+        <div class="text-center">
+          <button class="btn btn-primary" onclick="verifyBlockchain()">
+            <i class="fas fa-sync-alt me-2"></i>重新验证
+          </button>
+          <button class="btn btn-outline-success ms-2" onclick="showBlockchainStats()">
+            <i class="fas fa-chart-bar me-2"></i>查看统计
+          </button>
+          <a class="btn btn-outline-info ms-2" href="/api/ledger/status" target="_blank">
+            <i class="fas fa-external-link-alt me-1"></i>详细状态
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 区块链可视化 -->
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-link me-2 text-primary"></i>Blockchain Structure
+        <small class="text-muted ms-2">Display all blocks in chronological order</small>
+      </div>
+      <div class="card-body">
+        <div class="blockchain-container">
+          {% if blocks %}
+            {% for block in blocks %}
+              <div class="block-item {% if loop.first %}genesis-block{% endif %}">
+                <div class="block-header">
+                  <div class="d-flex align-items-center">
+                    <div class="block-number">
+                      {% if loop.first %}
+                        <i class="fas fa-seedling me-2"></i>Genesis Block
+                      {% else %}
+                        <i class="fas fa-cube me-2"></i>Block #{{ block.id }}
+                      {% endif %}
+                    </div>
+                    <div class="ms-3">
+                      <div class="fw-bold">Transaction ID: {{ block.tx_id }}</div>
+                      <div class="block-timestamp">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ block.created_at|int|datetime }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-success">Verified</span>
+                  </div>
+                </div>
+
+                <!-- 区块哈希信息 -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="hash-display">
+                      <div class="hash-label">Previous Block Hash</div>
+                      <div class="hash-value">
+                        {% if block.prev_hash %}
+                          {{ block.prev_hash[:16] }}...{{ block.prev_hash[-16:] }}
+                        {% else %}
+                          <span class="text-muted">None (Genesis Block)</span>
+                        {% endif %}
+                      </div>
+                      {% if block.prev_hash %}
+                        <button class="copy-btn" onclick="copyToClipboard('{{ block.prev_hash }}')">
+                          <i class="fas fa-copy"></i>
+                        </button>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="hash-display">
+                      <div class="hash-label">Current Block Hash</div>
+                      <div class="hash-value">
+                        {{ block.record_hash[:16] }}...{{ block.record_hash[-16:] }}
+                      </div>
+                      <button class="copy-btn" onclick="copyToClipboard('{{ block.record_hash }}')">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 交易信息 -->
+                {% if block.block_data %}
+                  {% set block_info = block.block_data|from_json %}
+                  {% if block_info %}
+                    <div class="transaction-info">
+                      {% if block_info.claim_data %}
+                        <!-- 领取记录 -->
+                        <div class="row">
+                          <div class="col-md-4">
+                            <strong>Claimer:</strong> {{ block_info.claim_data.claimer or 'N/A' }}
+                          </div>
+                          <div class="col-md-4">
+                            <strong>Amount:</strong> 
+                            <span class="transaction-amount">¥{{ "%.2f"|format((block_info.claim_data.amount or 0)/100) }}</span>
+                          </div>
+                          <div class="col-md-4">
+                            <strong>Token ID:</strong> {{ block_info.claim_data.token_id or 'N/A' }}
+                          </div>
+                        </div>
+                        {% if block_info.claim_data.description %}
+                          <div class="mt-2">
+                            <strong>Description:</strong> {{ block_info.claim_data.description }}
+                          </div>
+                        {% endif %}
+                      {% elif block_info.purchase_data %}
+                        <!-- 购买记录 -->
+                        <div class="row">
+                          <div class="col-md-4">
+                            <strong>User ID:</strong> {{ block_info.purchase_data.user_id or 'N/A' }}
+                          </div>
+                          <div class="col-md-4">
+                            <strong>Item:</strong> {{ block_info.purchase_data.item_name or 'N/A' }}
+                          </div>
+                          <div class="col-md-4">
+                            <strong>Total:</strong> 
+                            <span class="transaction-amount">¥{{ "%.2f"|format((block_info.purchase_data.total_price or 0)/100) }}</span>
+                          </div>
+                        </div>
+                        {% if block_info.purchase_data.description %}
+                          <div class="mt-2">
+                            <strong>Description:</strong> {{ block_info.purchase_data.description }}
+                          </div>
+                        {% endif %}
+                      {% else %}
+                        <!-- 其他类型交易 -->
+                        <div class="row">
+                          <div class="col-md-12">
+                            <strong>Transaction ID:</strong> {{ block_info.tx_id or 'N/A' }}
+                            <br><strong>Type:</strong> Unknown transaction type
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% endif %}
+
+                <!-- 区块连接线 -->
+                {% if not loop.last %}
+                  <div class="text-center mt-3">
+                    <i class="fas fa-arrow-down text-primary fa-2x"></i>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-5">
+              <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No blockchain data available</h5>
+              <p class="text-muted">Blockchain will be automatically generated when students claim rewards</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 复制到剪贴板
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(function() {
+        // 显示成功提示
+        const btn = event.target.closest('.copy-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.style.background = '#28a745';
+        
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '#667eea';
+        }, 1000);
+      }).catch(function(err) {
+        console.error('Copy failed:', err);
+        alert('Copy failed, please copy manually');
+      });
+    }
+    
+    // 验证区块链完整性
+    async function verifyBlockchain() {
+      const resultDiv = document.getElementById('verificationResult');
+      const statusDiv = document.getElementById('verificationStatus');
+      
+      if (!resultDiv || !statusDiv) {
+        console.error('Cannot find necessary DOM elements');
+        return;
+      }
+      
+      resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Verifying...</div>';
+      
+      try {
+        const response = await fetch('/api/ledger/verify');
+        const data = await response.json();
+        
+        if (data.ok) {
+          resultDiv.innerHTML = `
+            <div class="verification-status verification-success">
+              <i class="fas fa-check-circle fa-2x mb-2"></i>
+              <h5>Blockchain verification successful!</h5>
+              <p>Chain length: ${data.length} blocks<br>All block hashes verified successfully</p>
+            </div>
+          `;
+          statusDiv.innerHTML = '<i class="fas fa-check"></i> Normal';
+          
+          const lastUpdateElement = document.getElementById('lastUpdate');
+          if (lastUpdateElement) {
+            lastUpdateElement.innerHTML = 'Just now';
+          }
+        } else {
+          resultDiv.innerHTML = `
+            <div class="verification-status verification-danger">
+              <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+              <h5>Blockchain verification failed!</h5>
+              <p>Hash mismatch found at block ${data.broken_at}<br>Error message: ${data.message || 'Unknown error'}</p>
+            </div>
+          `;
+          statusDiv.innerHTML = '<i class="fas fa-times"></i> Abnormal';
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="verification-status verification-danger">
+            <i class="fas fa-times-circle fa-2x mb-2"></i>
+            <h5>Verification request failed</h5>
+            <p>Error message: ${error.message}</p>
+          </div>
+        `;
+        statusDiv.innerHTML = '<i class="fas fa-question"></i> Unknown';
+      }
+    }
+    
+    // 验证特定Transaction ID
+    async function verifyTransaction() {
+      const txId = document.getElementById('transactionIdInput').value.trim();
+      const resultDiv = document.getElementById('transactionVerificationResult');
+      
+      if (!txId) {
+        resultDiv.innerHTML = `
+          <div class="alert alert-warning mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            请输入Transaction ID
+          </div>
+        `;
+        return;
+      }
+      
+      if (!/^\d+$/.test(txId)) {
+        resultDiv.innerHTML = `
+          <div class="alert alert-danger mb-0">
+            <i class="fas fa-times-circle me-2"></i>
+            Transaction ID必须是数字
+          </div>
+        `;
+        return;
+      }
+      
+      resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> 验证中...</div>';
+      
+      try {
+        const response = await fetch(`/api/ledger/verify/${txId}`);
+        const data = await response.json();
+        
+        if (data.ok) {
+          resultDiv.innerHTML = `
+            <div class="alert alert-success mb-0">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                <div>
+                  <h5 class="mb-1 text-success">✅ Transaction ID ${txId} 验证成功！</h5>
+                  <div class="row mt-2">
+                    <div class="col-md-6">
+                      <strong>Transaction ID：</strong> ${data.transaction_id || 'N/A'}<br>
+                      <strong>交易类型：</strong> ${data.transaction_type || 'Unknown'}<br>
+                      <strong>用户ID：</strong> ${data.user_id || 'N/A'}<br>
+                      <strong>金额：</strong> ¥${data.amount ? (data.amount / 100).toFixed(2) : 'N/A'}
+                    </div>
+                    <div class="col-md-6">
+                      <strong>区块哈希：</strong> <code>${data.block_hash ? data.block_hash.substring(0, 20) + '...' : 'N/A'}</code><br>
+                      <strong>创建时间：</strong> ${data.created_at ? new Date(data.created_at * 1000).toLocaleString('zh-CN') : 'N/A'}<br>
+                      <strong>状态：</strong> <span class="badge bg-${data.valid === 'Yes' ? 'success' : 'danger'}">${data.valid || 'No'}</span>
+                    </div>
+                  </div>
+                  ${data.description ? `<div class="mt-2"><strong>描述：</strong> ${data.description}</div>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="alert alert-danger mb-0">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-danger me-3"></i>
+                <div>
+                  <h5 class="mb-1 text-danger">❌ Transaction ID ${txId} 验证失败！</h5>
+                  <p class="mb-0">${data.error || '交易记录不存在或验证失败'}</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="alert alert-danger mb-0">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-exclamation-triangle fa-2x text-danger me-3"></i>
+              <div>
+                <h5 class="mb-1 text-danger">❌ 验证错误！</h5>
+                <p class="mb-0">连接验证服务失败：${error.message}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 加载Transaction ID列表
+    function loadTransactionIdList() {
+      const blocks = document.querySelectorAll('.block-item');
+      const transactionIdList = document.getElementById('transactionIdList');
+      
+      if (!transactionIdList) return;
+      
+      let txIds = [];
+      blocks.forEach(block => {
+        const txIdElement = block.querySelector('.fw-bold');
+        if (txIdElement && txIdElement.textContent.includes('Transaction ID:')) {
+          const txId = txIdElement.textContent.replace('Transaction ID:', '').trim();
+          if (txId && !isNaN(txId)) {
+            txIds.push(parseInt(txId));
+          }
+        }
+      });
+      
+      // 排序并去重
+      txIds = [...new Set(txIds)].sort((a, b) => a - b);
+      
+      if (txIds.length === 0) {
+        transactionIdList.innerHTML = '<span class="text-muted">暂无Transaction ID</span>';
+        return;
+      }
+      
+      // 生成按钮
+      transactionIdList.innerHTML = txIds.map(txId => 
+        `<button class="btn btn-outline-secondary btn-sm" onclick="setTransactionId(${txId})">${txId}</button>`
+      ).join('');
+    }
+    
+    // 设置Transaction ID到输入框
+    function setTransactionId(txId) {
+      document.getElementById('transactionIdInput').value = txId;
+      verifyTransaction();
+    }
+
+    // 页面加载时自动验证
+    document.addEventListener('DOMContentLoaded', function() {
+      verifyBlockchain();
+      
+      // 更新最后更新时间
+      const now = new Date();
+      document.getElementById('lastUpdate').innerHTML = now.toLocaleTimeString();
+      
+      // 加载Transaction ID列表
+      setTimeout(loadTransactionIdList, 1000);
+    });
+  </script>
+</body>
+</html>
