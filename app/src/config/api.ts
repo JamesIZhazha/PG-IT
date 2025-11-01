@@ -1,14 +1,14 @@
-// API配置文件
-// 支持通过环境变量配置不同的API服务器地址
+// API configuration file
+// Support configuring different API server addresses via environment variables
 
 export const API_CONFIG = {
-  // 硬编码API地址，确保Android应用能正确访问
+  // Hardcoded API address to ensure Android app can access correctly
   BASE_URL: 'http://10.80.109.73:5051',
   
-  // API超时设置
+  // API timeout settings
   TIMEOUT: 10000,
   
-  // API端点
+  // API endpoints
   ENDPOINTS: {
     LOGIN: '/api/auth/login',
     BALANCE: '/api/user/balance',
@@ -21,12 +21,12 @@ export const API_CONFIG = {
   }
 }
 
-// 获取完整的API URL
+// Get complete API URL
 export const getApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.BASE_URL}${endpoint}`
 }
 
-// 打印当前API配置（开发环境）
+// Print current API configuration (development environment)
 if (import.meta.env.DEV) {
   console.log('API Configuration:', API_CONFIG)
 }

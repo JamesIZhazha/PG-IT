@@ -8,20 +8,20 @@ import qrcode
 from io import BytesIO
 
 
-APP_SECRET = os.environ.get("CM_SECRET", "change-me-secret")  # HMAC 密钥
+APP_SECRET = os.environ.get("CM_SECRET", "change-me-secret")  # HMAC secret key
 DB_PATH = "classmint.db"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET", "dev-key")
 bcrypt = Bcrypt(app)
 
-# 配置CORS，允许所有来源的跨域请求
+# Configure CORS to allow cross-origin requests from all sources
 CORS(app, origins=['*'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
-# 添加Jinja2过滤器
+# Add Jinja2 filters
 @app.template_filter('from_json')
 def from_json_filter(value):
-    """将JSON字符串转换为Python对象"""
+    """Convert JSON string to Python object"""
     try:
         return json.loads(value) if value else None
     except (json.JSONDecodeError, TypeError):
@@ -29,7 +29,7 @@ def from_json_filter(value):
 
 @app.template_filter('timestamp_to_datetime')
 def timestamp_to_datetime_filter(timestamp):
-    """将时间戳转换为可读的日期时间格式"""
+    """Convert timestamp to readable datetime format"""
     try:
         if timestamp:
             dt = datetime.fromtimestamp(int(timestamp))
@@ -130,7 +130,7 @@ def init_db():
         pw = bcrypt.generate_password_hash("admin123").decode()
         db.execute("INSERT INTO users (username, password_hash) VALUES (?,?)", ("admin", pw))
         db.commit()
-        print("已创建默认教师账号: admin / admin123")
+        print("Created default teacher account: admin / admin123")
     
     # Default students
     students = [
@@ -147,7 +147,7 @@ def init_db():
             db.commit()
     
     if students:
-        print("已创建默认学生账号: student1,student2,student3 / student123")
+        print("Created default student accounts: student1,student2,student3 / student123")
     
     # Initialize student account balances
     db.execute("INSERT OR IGNORE INTO user_balances (user_id, balance, updated_at) VALUES (1, 0, ?)", (now_ts(),))

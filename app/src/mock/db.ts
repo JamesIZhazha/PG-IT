@@ -1,7 +1,7 @@
 type Tx = { id:number; user_id:number; amount:number; type:'earn'|'redeem'; token?:string; created_at:number }
 type Ledger = { id:number; tx_id:number; prev_hash:string; record_hash:string; created_at:number }
 
-// 新增：ClassMint令牌类型
+// ClassMint token type
 type ClassMintToken = { 
   amount: number; 
   one: number; 
@@ -16,7 +16,7 @@ const LS = {
   users:'cm_users', 
   accounts:'cm_accounts', 
   tokens:'cm_tokens', 
-  classmint_tokens:'cm_classmint_tokens', // 新增：ClassMint令牌存储
+  classmint_tokens:'cm_classmint_tokens', // ClassMint token storage
   txs:'cm_transactions', 
   ledger:'cm_ledger', 
   seq:'cm_seq' 
@@ -27,13 +27,13 @@ const set = (k:string, v:any)=> localStorage.setItem(k, JSON.stringify(v))
 
 function sha256Lite(s:string){ let h=0; for(let i=0;i<s.length;i++){ h=(h<<5)-h+s.charCodeAt(i); h|=0 } return ('00000000'+(h>>>0).toString(16)).slice(-8) }
 
-// 新增：验证ClassMint令牌
+// Validate ClassMint token
 function validateClassMintToken(tokenData: any): ClassMintToken {
   if (!tokenData || !tokenData.amount || !tokenData.exp || !tokenData.nonce) {
     throw new Error('Incomplete token data');
   }
   
-  // 检查过期时间
+  // Check expiration time
   const now = Math.floor(Date.now() / 1000);
   if (tokenData.exp < now) {
     throw new Error('Token has expired');
@@ -42,13 +42,13 @@ function validateClassMintToken(tokenData: any): ClassMintToken {
   return tokenData;
 }
 
-// 新增：检查ClassMint令牌是否已使用
+// Check if ClassMint token has been used
 function isClassMintTokenUsed(nonce: string): boolean {
   const usedTokens = get<string[]>(LS.classmint_tokens, []);
   return usedTokens.includes(nonce);
 }
 
-// 新增：标记ClassMint令牌为已使用
+// Mark ClassMint token as used
 function markClassMintTokenAsUsed(nonce: string) {
   const usedTokens = get<string[]>(LS.classmint_tokens, []);
   if (!usedTokens.includes(nonce)) {
@@ -59,9 +59,9 @@ function markClassMintTokenAsUsed(nonce: string) {
 
 export const db = {
   ensureInit(){
-    console.log('开始初始化数据库...')
+    console.log('Starting database initialization...')
     if(!localStorage.getItem(LS.seq)){
-      console.log('数据库未初始化，开始创建初始数据...')
+      console.log('Database not initialized, creating initial data...')
       set(LS.seq, {tx:1, ledger:1})
       set(LS.users, [{id:1, username:'student', password:'123456'}])
       set(LS.accounts, [{user_id:1, balance:0}])
@@ -77,25 +77,25 @@ export const db = {
         {token:'DEMO-900', amount:900, used:false, expires_at:Date.now()+86400000},
         {token:'DEMO-1000', amount:1000, used:false, expires_at:Date.now()+86400000}
       ])
-      set(LS.classmint_tokens, []) // 新增：初始化ClassMint令牌存储
+      set(LS.classmint_tokens, []) // Initialize ClassMint token storage
       set(LS.txs, [] as Tx[]); set(LS.ledger, [] as Ledger[])
-      console.log('数据库初始化完成')
+      console.log('Database initialization completed')
     } else {
-      console.log('数据库已经初始化')
-      // 确保ClassMint令牌存储存在
+      console.log('Database already initialized')
+      // Ensure ClassMint token storage exists
       if (!localStorage.getItem(LS.classmint_tokens)) {
         set(LS.classmint_tokens, [])
       }
     }
   },
   login(username:string, password:string){
-    console.log('数据库登录函数被调用，用户名:', username, '密码:', password)
+    console.log('Database login function called, username:', username, 'password:', password)
     const users = get<any[]>(LS.users, [])
-    console.log('当前用户列表:', users)
+    console.log('Current user list:', users)
     const u = users.find(x=>x.username===username && x.password===password)
-    console.log('找到的用户:', u)
+    console.log('Found user:', u)
     const result = u ? {ok:true, user_id:u.id} : {ok:false}
-    console.log('登录函数返回结果:', result)
+    console.log('Login function return result:', result)
     return result
   },
   balance(user_id:number){
@@ -104,62 +104,62 @@ export const db = {
     return {balance: acc.balance, recent}
   },
   
-  // 修改：支持ClassMint令牌和旧格式令牌
+  // Support both ClassMint tokens and legacy format tokens
   claim(user_id:number, tokenStr:string){
-    console.log('开始处理令牌领取，用户ID:', user_id, '令牌:', tokenStr)
+    console.log('Starting token claim processing, user ID:', user_id, 'token:', tokenStr)
     
     try {
-      // 尝试解析为ClassMint令牌
+      // Try to parse as ClassMint token
       let tokenData: any;
       try {
         tokenData = JSON.parse(tokenStr);
-        console.log('解析为ClassMint令牌:', tokenData)
+        console.log('Parsed as ClassMint token:', tokenData)
         
-        // 验证ClassMint令牌
+        // Validate ClassMint token
         const validatedToken = validateClassMintToken(tokenData);
         
-        // 检查是否已使用
+        // Check if already used
         if (isClassMintTokenUsed(validatedToken.nonce)) {
           throw new Error('Token already used');
         }
         
-        // 标记为已使用
+        // Mark as used
         markClassMintTokenAsUsed(validatedToken.nonce);
         
-        // 处理ClassMint令牌
+        // Process ClassMint token
         return this.processClassMintClaim(user_id, validatedToken);
         
       } catch (parseError) {
-        console.log('不是ClassMint令牌，尝试旧格式:', parseError)
+        console.log('Not a ClassMint token, trying legacy format:', parseError)
         
-        // 尝试旧格式令牌
+        // Try legacy format token
         const tokens = get<any[]>(LS.tokens, [])
         const t = tokens.find(x=>x.token===tokenStr)
         if(!t) throw new Error('Invalid token')
         if(t.used) throw new Error('Token already used')
         if(Date.now()>t.expires_at) throw new Error('Token has expired')
         
-        // 处理旧格式令牌
+        // Process legacy format token
         return this.processLegacyClaim(user_id, t);
       }
       
     } catch (error: any) {
-      console.error('令牌处理失败:', error)
+      console.error('Token processing failed:', error)
       throw error;
     }
   },
   
-  // 新增：处理ClassMint令牌领取
+  // Process ClassMint token claim
   processClassMintClaim(user_id: number, tokenData: ClassMintToken) {
-    console.log('处理ClassMint令牌领取:', tokenData)
+    console.log('Processing ClassMint token claim:', tokenData)
     
-    // 更新账户余额
+    // Update account balance
     const accs = get<any[]>(LS.accounts, []); 
     const target = accs.find(a=>a.user_id===user_id) || (accs.push({user_id, balance:0}), accs[accs.length-1])
     target.balance += tokenData.amount; 
     set(LS.accounts, accs)
 
-    // 创建交易记录
+    // Create transaction record
     const seq = get<any>(LS.seq, {tx:1, ledger:1}); 
     const txs = get<Tx[]>(LS.txs, [])
     const tx:Tx = { 
@@ -174,7 +174,7 @@ export const db = {
     set(LS.txs, txs); 
     set(LS.seq, seq)
 
-    // 创建区块链记录
+    // Create blockchain record
     const ledger = get<Ledger[]>(LS.ledger, []); 
     const prev = ledger[ledger.length-1]?.record_hash || ''
     const payload = JSON.stringify({
@@ -196,13 +196,13 @@ export const db = {
     set(LS.ledger, ledger); 
     set(LS.seq, seq)
 
-    console.log('ClassMint令牌处理完成，新余额:', target.balance)
+    console.log('ClassMint token processing completed, new balance:', target.balance)
     return {balance: target.balance, tx_id: tx.id, block_hash: record_hash}
   },
   
-  // 新增：处理旧格式令牌领取
+  // Process legacy format token claim
   processLegacyClaim(user_id: number, token: any) {
-    console.log('处理旧格式令牌领取:', token)
+    console.log('Processing legacy format token claim:', token)
     
     const tokens = get<any[]>(LS.tokens, [])
     token.used = true; 
@@ -241,7 +241,7 @@ export const db = {
     set(LS.ledger, ledger); 
     set(LS.seq, seq)
 
-    console.log('旧格式令牌处理完成，新余额:', target.balance)
+    console.log('Legacy format token processing completed, new balance:', target.balance)
     return {balance: target.balance, tx_id: tx.id, block_hash: record_hash}
   },
   
